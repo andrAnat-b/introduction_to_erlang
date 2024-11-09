@@ -1,4 +1,4 @@
--module(list_utils_fun_1).
+-module(utils_p01).
 -author("vkykalo").
 -export([get_last_element/1]).
 
