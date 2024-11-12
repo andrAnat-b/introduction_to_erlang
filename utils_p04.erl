@@ -5,4 +5,4 @@
 length_of(List) -> length_of(List, 0).
 
 length_of([], Acc) -> Acc;
-length_of([_|T], Acc) -> length_of(T, Acc + 1).
+length_of([_ | T], Acc) -> length_of(T, Acc + 1).
