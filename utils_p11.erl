@@ -9,9 +9,9 @@
 
 encode_modified(List) ->
     EncodedList = encode(List),
-    modify_encoded(EncodedList).
+    handle(EncodedList).
 
-modify_encoded([]) -> [];
+handle([]) -> [];
 
-modify_encoded([[1, T] | Rest]) -> [T | modify_encoded(Rest)];
-modify_encoded([[H, T] | Rest]) -> [[H, T] | modify_encoded(Rest)].
+handle([[1, T] | Rest]) -> [T | handle(Rest)];
+handle([[H, T] | Rest]) -> [[H, T] | handle(Rest)].
