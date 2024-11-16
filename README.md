@@ -1,2 +1,3 @@
-# introduction_to_erlang
+# Vadym Kykalo
+
 homework on erlang
