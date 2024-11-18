@@ -6,4 +6,4 @@
 % (A A B B C C C C D D)
 
 dupli([]) -> [];
-dupli([H | T]) -> [H, H] ++ dupli(T).
+dupli([H | T]) -> [H, H] ++ dupli(T). %% нехвостова рекурсія

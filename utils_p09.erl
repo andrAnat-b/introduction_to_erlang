@@ -18,3 +18,5 @@ pack([H | T], [H | _] = CurrentAcc, Acc) -> pack(T, [H | CurrentAcc], Acc);
 pack([H | T], [], Acc) -> pack(T, [H], Acc); % [[],[1,1,1,1],[3,3],[4],[5],[6,6,6]] exclude empty list
 
 pack([H | T], CurrentAcc, Acc) -> pack(T, [H], [CurrentAcc | Acc]).
+
+%% подумайте як обійтись лише одним акумулятором

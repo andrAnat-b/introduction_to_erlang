@@ -15,4 +15,4 @@ encode_bulk([]) -> [];
 
 encode_bulk([[H | T] | Rest]) ->
     N = length_of([H | T]),
-    [[N, H] | encode_bulk(Rest)].
+    [[N, H] | encode_bulk(Rest)]. %% не хвостова рекурсія

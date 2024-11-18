@@ -13,5 +13,5 @@ encode_modified(List) ->
 
 handle([]) -> [];
 
-handle([[1, T] | Rest]) -> [T | handle(Rest)];
-handle([[H, T] | Rest]) -> [[H, T] | handle(Rest)].
+handle([[1, T] | Rest]) -> [T | handle(Rest)]; %% *
+handle([[H, T] | Rest]) -> [[H, T] | handle(Rest)]. %% * нехвостова рекурсія
