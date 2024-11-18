@@ -2,6 +2,7 @@
 -author("vkykalo").
 -import(utils_p09, [pack/1]).
 -import(utils_p04, [length_of/1]).
+-import(utils_p05, [reverse/1]).
 -export([encode/1]).
 
 % * (encode '(a a a a b c c a a d e e e e))
@@ -9,10 +10,10 @@
 
 encode(List) ->
     Packed = pack(List),
-    encode_bulk(Packed).
+    encode_bulk(Packed, []).
 
-encode_bulk([]) -> [];
+encode_bulk([], Acc) -> reverse(Acc);
 
-encode_bulk([[H | T] | Rest]) ->
+encode_bulk([[H | T] | Rest], Acc) ->
     N = length_of([H | T]),
-    [[N, H] | encode_bulk(Rest)].
+    encode_bulk(Rest, [[N, H] | Acc]).
