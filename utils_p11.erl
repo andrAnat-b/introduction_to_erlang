@@ -1,5 +1,6 @@
 -module(utils_p11).
 -author("vkykalo").
+-import(utils_p05, [reverse/1]).
 -import(utils_p10, [encode/1]).
 
 -export([encode_modified/1]).
@@ -9,9 +10,8 @@
 
 encode_modified(List) ->
     EncodedList = encode(List),
-    handle(EncodedList).
+    handle(EncodedList,  []).
 
-handle([]) -> [];
-
-handle([[1, T] | Rest]) -> [T | handle(Rest)];
-handle([[H, T] | Rest]) -> [[H, T] | handle(Rest)].
+handle([], Acc) -> reverse(Acc);
+handle([[1, T] | Rest], Acc) -> handle(Rest, [T | Acc]);
+handle([[N, T] | Rest], Acc) -> handle(Rest, [[N, T] | Acc]).
