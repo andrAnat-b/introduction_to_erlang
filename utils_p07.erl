@@ -1,7 +1,12 @@
 -module(utils_p07).
 -author("vkykalo").
+-import(utils_p05, [reverse/1]).
 -export([flatten/1]).
 
-flatten([]) -> [];
-flatten([[H | T1] | T2]) -> flatten([H | T1] ++ flatten(T2));
-flatten([H | T]) -> [H | flatten(T)].
+flatten(List) -> flatten(List, []).
+
+flatten([], Acc) -> reverse(Acc);
+
+flatten([[H | T1] | T2], Acc) -> flatten([H | T1] ++ T2, Acc);
+
+flatten([H | T], Acc) -> flatten(T, [H | Acc]).
