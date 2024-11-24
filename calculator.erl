@@ -1,11 +1,11 @@
 -module(calculator).
 -author("vkykalo").
 -import(utils_p05, [reverse/1]).
--export([init/0, calculate/3]).
+-export([init/0, calc/3]).
 
-calculate(Operator, X, Y) ->
+calc(Operator, X, Y) ->
     Result = operation(Operator, X, Y),
-    history ! {store, {Operator, X, Y, Result}, self()},
+    history ! {save, {Operator, X, Y, Result}, self()},
 
     receive
         {history, UpdatedHistory} -> {Result, UpdatedHistory}
@@ -15,10 +15,10 @@ run() -> loop([]).
 
 loop(History) ->
     receive
-        {store, Entry, Owner} ->
+        {save, Record, Owner} ->
             
-            NewHistory = [Entry | History],
-            TrimmedHistory = lists:sublist(NewHistory, 10),
+            NewHistory = [Record | History],
+            TrimmedHistory = lists:sublist(NewHistory, 10), % history save last 10 records
             Owner ! {history, reverse(TrimmedHistory)},
             loop(TrimmedHistory)
     end.
