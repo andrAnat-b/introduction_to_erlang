@@ -15,16 +15,16 @@ stop() ->
     ets:delete(view_counter),
     ets:delete(id_counter).
 
-save(Filename) ->
+save(FileName) ->
     Data = #{
         user => ets:tab2list(user),
         view_counter => ets:tab2list(view_counter),
         id_counter => ets:tab2list(id_counter)
     },
-    file:write_file(Filename, term_to_binary(Data)).
+    file:write_file(FileName, term_to_binary(Data)).
 
-load(Filename) ->
-    case file:read_file(Filename) of
+load(FileName) ->
+    case file:read_file(FileName) of
         {ok, Binary} ->
             Data = binary_to_term(Binary),
             
