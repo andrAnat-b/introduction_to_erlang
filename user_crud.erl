@@ -1,19 +1,55 @@
 -module(user_crud).
--export([start/0, stop/0, create_user/2, read_user/1, update_user/3, delete_user/1]).
+-export([start/0, stop/0, create_user/2, read_user/1, update_user/3, delete_user/1, read_users/0, save/1, load/1]).
 
 start() ->
+    stop(),
+    
     ets:new(user_table, [named_table, {keypos, 1}, public]),
-    ets:new(view_counter, [named_table, {keypos, 1}, public]).
+    ets:new(view_counter, [named_table, {keypos, 1}, public]),
+    ets:new(id_counter, [named_table, {keypos, 1}, public]),
+    
+    ets:insert(id_counter, {user_id, 1}).
 
 stop() ->
     ets:delete(user_table),
-    ets:delete(view_counter).
+    ets:delete(view_counter),
+    ets:delete(id_counter).
+
+save(Filename) ->
+    Data = #{
+        user_table => ets:tab2list(user_table),
+        view_counter => ets:tab2list(view_counter),
+        id_counter => ets:tab2list(id_counter)
+    },
+    file:write_file(Filename, term_to_binary(Data)).
+
+load(Filename) ->
+    case file:read_file(Filename) of
+        {ok, Binary} ->
+            Data = binary_to_term(Binary),
+            
+            stop(),
+            
+            ets:new(user_table, [named_table, {keypos, 1}, public]),
+            ets:new(view_counter, [named_table, {keypos, 1}, public]),
+            ets:new(id_counter, [named_table, {keypos, 1}, public]),
+            
+            lists:foreach(fun({K, V}) -> ets:insert(user_table, {K, V}) end, maps:get(user_table, Data)),
+            lists:foreach(fun({K, V}) -> ets:insert(view_counter, {K, V}) end, maps:get(view_counter, Data)),
+            lists:foreach(fun({K, V}) -> ets:insert(id_counter, {K, V}) end, maps:get(id_counter, Data)),
+            
+            ok;
+        {error, Reason} ->
+            {error, Reason}
+    end.
 
 create_user(Name, Phone) ->
-    NewId = next_id(user_table),
-    ets:insert(user_table, {NewId, Name, Phone}),
-    ets:insert(view_counter, {NewId, 0}),
-    {NewId, Name, Phone, 0}.
+    Id = next_user_id(),
+    
+    ets:insert(user_table, {Id, Name, Phone}),
+    ets:insert(view_counter, {Id, 0}),
+    
+    {Id, Name, Phone, 0}.
 
 read_user(Id) ->
     case ets:lookup(user_table, Id) of
@@ -30,11 +66,19 @@ read_user(Id) ->
             {error, not_found}
     end.
 
+read_users() ->
+    Users = ets:tab2list(user_table),
+    [{Id, Name, Phone, UpdatedViewedTimes} || 
+        {Id, Name, Phone} <- Users,
+        UpdatedViewedTimes = next_view_counter(Id)].
+
 update_user(Id, Name, Phone) ->
     case ets:lookup(user_table, Id) of
         [{Id, _, _}] ->
+            
             ets:insert(user_table, {Id, Name, Phone}),
             ets:insert(view_counter, {Id, 0}),
+            
             {Id, Name, Phone, 0};
         [] ->
             {error, not_found}
@@ -50,9 +94,24 @@ delete_user(Id) ->
             {error, not_found}
     end.
 
-next_id(Table) ->
-    Ids = [Id || {Id, _} <- ets:tab2list(Table)],
-    case Ids of
-        [] -> 1;
-        _ -> lists:max(Ids) + 1
+next_view_counter(Id) ->
+    case ets:lookup(view_counter, Id) of
+        [{Id, ViewedTimes}] ->
+            NewViewedTimes = ViewedTimes + 1,
+            ets:insert(view_counter, {Id, NewViewedTimes}),
+            NewViewedTimes;
+        [] ->
+            ets:insert(view_counter, {Id, 1}),
+            1
+    end.
+
+next_user_id() ->
+    case ets:lookup(id_counter, user_id) of
+        [{user_id, CurrentId}] ->
+            NewId = CurrentId + 1,
+            ets:insert(id_counter, {user_id, NewId}),
+            CurrentId;
+        [] ->
+            ets:insert(id_counter, {user_id, 2}),
+            1
     end.
