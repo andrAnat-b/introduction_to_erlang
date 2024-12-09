@@ -19,7 +19,7 @@ create_user(Name, Phone) ->
 read_user(Id) ->
     case ets:lookup(user_entity, Id) of
         [{Id, Name, Phone, ViewedTimes}] ->
-            UpdatedViewedTimes = ViewedTimes + 1,
+            UpdatedViewedTimes = ViewedTimes + 1, %% краще замінити на атомарний ets:update_counter/3
             ets:insert(user_entity, {Id, Name, Phone, UpdatedViewedTimes}),
             {Id, Name, Phone, UpdatedViewedTimes};
         [] ->
@@ -30,7 +30,7 @@ read_all() ->
     Users = ets:tab2list(user_entity),
     [{Id, Name, Phone, UpdatedViewedTimes} ||
         {Id, Name, Phone, ViewedTimes} <- Users,
-        UpdatedViewedTimes = ViewedTimes + 1,
+        UpdatedViewedTimes = ViewedTimes + 1, %% краще замінити на атомарний ets:update_counter/3
         ets:insert(user_entity, {Id, Name, Phone, UpdatedViewedTimes})].
 
 update_user(Id, Name, Phone) ->
@@ -52,7 +52,7 @@ delete_user(Id) ->
     end.
 
 save(Filename) ->
-    Data = #{user_entity => ets:tab2list(user_entity), id_counter => ets:tab2list(id_counter)},
+    Data = #{user_entity => ets:tab2list(user_entity), id_counter => ets:tab2list(id_counter)}, %% коментував на минулій або позаминулій лекції
     file:write_file(Filename, term_to_binary(Data)).
 
 load(Filename) ->
@@ -71,7 +71,7 @@ load(Filename) ->
             {error, Reason}
     end.
 
-next_user_id() ->
+next_user_id() -> %% виникне стан гонки і даін будуть некоректними - краще використовувати атомарний ets:update_counter/3
     case ets:lookup(id_counter, user_id) of
         [{user_id, CurrentId}] ->
             NewId = CurrentId + 1,
